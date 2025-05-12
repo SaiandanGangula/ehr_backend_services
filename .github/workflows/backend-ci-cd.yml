@@ -1,0 +1,22 @@
+  deploy:
+    needs: build-and-push
+    # run on your laptop instead of ubuntu-latest
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy container locally
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}:latest
+          # stop & remove any existing container
+          if (docker ps -q --filter "name=quarkus-backend") {
+            docker stop quarkus-backend
+            docker rm quarkus-backend
+          }
+          # run new one
+          docker run -d `
+            --name quarkus-backend `
+            -p 8080:8080 `
+            ${{ env.IMAGE_NAME }}:latest
