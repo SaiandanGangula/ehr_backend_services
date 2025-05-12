@@ -7,8 +7,10 @@ on:
   pull_request:
     branches: [ main ]
 
+  workflow_dispatch:
 
-workflow_dispatch:
+
+
 
 # 2) All of your jobs must be listed under `jobs:`
 jobs:
