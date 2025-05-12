@@ -72,12 +72,15 @@ jobs:
       - name: Deploy container locally
         shell: powershell
         run: |
-          # Pull latest image
+          # Pull the latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
-  
-          # Force-remove existing container if it exists (stops + removes)
-          docker rm -f quarkus-backend -ErrorAction SilentlyContinue
-  
-          # Run new container
+
+          # Remove any existing container (stop + remove) if it exists
+          try {
+            docker rm -f quarkus-backend
+          } catch {
+            Write-Host "No existing 'quarkus-backend' container to remove."
+          }
+
+          # Run the new container
           docker run -d --name quarkus-backend -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
-  
