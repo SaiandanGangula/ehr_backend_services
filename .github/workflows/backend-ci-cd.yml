@@ -49,25 +49,24 @@ jobs:
   # ──────────────── 3. Deploy on Self-Hosted Windows ────────────────
   deploy:
     needs: build-and-push
-    runs-on: [ self-hosted, windows ]
+    runs-on: [ self-hosted ]   # no need to tag “windows”
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Deploy container locally
-        shell: pwsh
         run: |
           # Pull latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
 
           # Stop & remove existing container if running
-          if (docker ps -q --filter "name=quarkus-backend") {
+          if docker ps -q --filter "name=quarkus-backend"; then
             docker stop quarkus-backend
             docker rm quarkus-backend
-          }
+          fi
 
           # Run new container
-          docker run -d `
-            --name quarkus-backend `
-            -p 8080:8080 `
+          docker run -d \
+            --name quarkus-backend \
+            -p 8080:8080 \
             ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
