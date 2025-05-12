@@ -1,22 +1,76 @@
+name: Java 21 Quarkus CI/CD
+
+# 1) When to run this workflow
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# 2) All of your jobs must be listed under `jobs:`
+jobs:
+  # ──────────────── Job #1: compile & test ────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build & run tests
+        run: ./gradlew clean test
+
+  # ──────────────── Job #2: build & push image ────────────────
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:${{ github.sha }}
+
+  # ──────────────── Job #3: deploy on self-hosted Windows ────────────────
   deploy:
     needs: build-and-push
-    # run on your laptop instead of ubuntu-latest
-    runs-on: [self-hosted, windows]
-
+    runs-on: [ self-hosted, windows ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Deploy container locally
+        shell: pwsh
         run: |
-          docker pull ${{ env.IMAGE_NAME }}:latest
-          # stop & remove any existing container
+          # Pull latest image
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
+
+          # If container exists, stop & remove it
           if (docker ps -q --filter "name=quarkus-backend") {
             docker stop quarkus-backend
             docker rm quarkus-backend
           }
-          # run new one
+
+          # Run new container
           docker run -d `
             --name quarkus-backend `
             -p 8080:8080 `
-            ${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
