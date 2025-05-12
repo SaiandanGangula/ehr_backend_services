@@ -53,8 +53,8 @@ jobs:
       - name: Build & push image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: Dockerfile
+          context: src/main/docker
+          file: Dockerfile.jvm
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/quarkus-backend:latest
