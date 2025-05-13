@@ -121,8 +121,9 @@ data class PatientResponseDto(
  * ──────────────────────────────────────────────────────────────── */
 data class ContactDto(
 
+
     @field:IndianMobile
-    val mobileNumber: String,
+    val mobileNumber: String?,
     @field:IndianMobile
     val phoneNumber: String,
     @field:Email
