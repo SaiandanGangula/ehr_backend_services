@@ -5,18 +5,43 @@ import sirobilt.meghasanjivini.patientregistration.model.Patient
 import sirobilt.meghasanjivini.patientregistration.model.PatientAddress
 import sirobilt.meghasanjivini.patientregistration.model.PatientContact
 import sirobilt.meghasanjivini.patientregistration.model.PatientInsurance
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.full.memberProperties
 
 /* PatientRegistrationDto.kt */
-fun PatientRegistrationDto.toEntity() = Patient(
-    facilityId = facilityId,
-    identifierType = identifierType,
-    identifierNumber = identifierNumber,
-    firstName = firstName,
-    middleName = middleName,
-    lastName = lastName,
-    dateOfBirth = dateOfBirth,
-    gender = gender
-)
+fun PatientRegistrationDto.toEntity(): Patient {
+    val p = Patient(
+        facilityId       = facilityId,
+        identifierType   = identifierType,
+        identifierNumber = identifierNumber,
+        firstName        = firstName,
+        middleName       = middleName,
+        lastName         = lastName,
+        dateOfBirth      = dateOfBirth,
+        gender           = gender,
+
+        /* ---- static optional columns ---- */
+        title            = title,
+        age              = age,
+        bloodGroup       = bloodGroup,
+        maritalStatus    = maritalStatus,
+        citizenship      = citizenship,
+        religion         = religion,
+        caste            = caste,
+        occupation       = occupation,
+        education        = education,
+        annualIncome     = annualIncome
+    )
+
+    /* ---- apply dynamic map, if present ---- */
+    dynamic?.forEach { (key, value) ->
+        val prop = Patient::class.memberProperties
+            .firstOrNull { it.name == key } as? KMutableProperty1<*, *>
+        prop?.let { it.setter.call(p, value) }
+    }
+
+    return p
+}
 
 /* ContactDto.kt */
 fun ContactDto.toEntity(owner: Patient) = PatientContact(

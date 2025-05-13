@@ -7,7 +7,7 @@ import jakarta.ws.rs.NotFoundException
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.model.*
 import sirobilt.meghasanjivini.patientregistration.repository.*
-import sirobilt.meghasanjivini.patientregistration.validation.RegistrationValidator
+import sirobilt.meghasanjivini.patientregistration.validation.PatientValidator
 import java.time.LocalDate
 import java.util.*
 import kotlin.reflect.KProperty1
@@ -73,7 +73,7 @@ class PatientService @Inject constructor(
     private val addressRepo: PatientAddressRepository,
     private val emergencyRepo: EmergencyContactRepository,
     private val insuranceRepo: PatientInsuranceRepository,
-    private val validator: RegistrationValidator,
+    private val validator: PatientValidator,
     private val cfgSvc: FieldConfigService
 ) {
 

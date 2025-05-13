@@ -1,5 +1,6 @@
 package sirobilt.meghasanjivini.patientregistration.dto
 
+import jakarta.validation.constraints.Email
 import sirobilt.meghasanjivini.patientregistration.model.AddressType
 import sirobilt.meghasanjivini.patientregistration.model.BillingType
 import sirobilt.meghasanjivini.patientregistration.model.BloodGroup
@@ -12,6 +13,10 @@ import sirobilt.meghasanjivini.patientregistration.model.PhonePref
 import sirobilt.meghasanjivini.patientregistration.model.RelationType
 import sirobilt.meghasanjivini.patientregistration.model.Title
 import sirobilt.meghasanjivini.patientregistration.model.TokenStatus
+import sirobilt.meghasanjivini.patientregistration.validation.AbhaNumber
+import sirobilt.meghasanjivini.patientregistration.validation.IndianMobile
+import sirobilt.meghasanjivini.patientregistration.validation.PastDate
+import sirobilt.meghasanjivini.patientregistration.validation.PostalCode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
@@ -31,6 +36,8 @@ data class PatientRegistrationDto(
     val firstName: String?       = null,
     val middleName: String?      = null,
     val lastName: String?        = null,
+
+    @field:PastDate
     val dateOfBirth: LocalDate?  = null,
     val age: Int?                = null,
     val gender: Gender?          = null,
@@ -42,6 +49,8 @@ data class PatientRegistrationDto(
     val occupation: String?      = null,
     val education: String?       = null,
     val annualIncome: BigDecimal?= null,
+
+    val dynamic:           Map<String,Any?>? = null,
 
     // --- child collections / aggregates --------------------------
     val contacts:           List<ContactDto>?            = null,
@@ -111,7 +120,12 @@ data class PatientResponseDto(
  *  3. Child-table DTOs                                            *
  * ──────────────────────────────────────────────────────────────── */
 data class ContactDto(
+
+    @field:IndianMobile
+    val mobileNumber: String,
+    @field:IndianMobile
     val phoneNumber: String,
+    @field:Email
     val email: String? = null,
     val preferredContactMode: ContactMode? = null,
     val phoneContactPreference: PhonePref? = null,
@@ -123,6 +137,8 @@ data class AddressDto(
     val houseNoOrFlatNo: String? = null,
     val localityOrSector: String? = null,
     val cityOrVillage: String? = null,
+
+    @field:PostalCode
     val pincode: String? = null,
     val districtId: UUID? = null,
     val stateId: UUID? = null,
@@ -130,6 +146,8 @@ data class AddressDto(
 )
 
 data class AbhaDto(
+
+    @field:AbhaNumber
     val abhaNumber: String?,
     val abhaAddress: String?
 )

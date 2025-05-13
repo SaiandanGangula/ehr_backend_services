@@ -37,10 +37,10 @@ class PatientController @Inject constructor(
     fun register(@Valid dto: PatientRegistrationDto): Response? {
         val saved = patientSvc.register(dto)
 
-        return RestResponse.ResponseBuilder
-            .create(Response.Status.CREATED, saved)      // static create()
+        return Response.status(Response.Status.CREATED)   // 201
+            .entity(saved)                               // body
             .location(URI.create("/api/patients/${saved.patientId}"))
-            .build() as Response?
+            .build()
     }
 
     /* ---------- update (identifiers immutable) ---------- */

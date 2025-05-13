@@ -53,7 +53,7 @@ data class PatientContact(
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "patient_id")
     var patient: Patient = Patient(),
-
+    var mobileNumber: String = "",
     var phoneNumber: String = "",
     var email: String? = null,
     @Enumerated(EnumType.STRING) var preferredContactMode: ContactMode? = null,
