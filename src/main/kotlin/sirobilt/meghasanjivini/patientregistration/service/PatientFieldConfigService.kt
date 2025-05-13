@@ -134,6 +134,18 @@ class PatientService @Inject constructor(
     fun searchByCityOrName(city: String?, name: String?): List<PatientResponseDto> =
         patientRepo.searchByCityOrName(city, name)
             .map { it.toDto(cfgSvc) }
+
+
+    fun exists(firstName: String,
+               identifierType: IdentifierType,
+               identifierNumber: String?,
+               primaryEmail: String?): Boolean {
+
+        val abha = if (identifierType == IdentifierType.ABHA)
+            identifierNumber else null
+
+        return patientRepo.findDuplicate(firstName, abha, primaryEmail) != null
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -158,3 +170,5 @@ private fun Patient.toDto(cfgSvc: FieldConfigService): PatientResponseDto {
         dynamic          = dynamic
     )
 }
+
+

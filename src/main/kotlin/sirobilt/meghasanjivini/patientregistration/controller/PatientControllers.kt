@@ -35,6 +35,17 @@ class PatientController @Inject constructor(
     @Transactional
     @Operation(summary = "Register a patient together with contacts and other aggregates.")
     fun register(@Valid dto: PatientRegistrationDto): Response? {
+
+        val email = dto.contacts
+            ?.firstOrNull()?.email       // choose your own “primary e-mail” rule
+        if (patientSvc.exists(dto.firstName ?: "",
+                dto.identifierType,
+                dto.identifierNumber,
+                email)) {
+            return Response.status(Response.Status.CONFLICT)       // 409
+                .entity(mapOf("error" to "Patient already exists"))
+                .build()
+        }
         val saved = patientSvc.register(dto)
 
         return Response.status(Response.Status.CREATED)   // 201

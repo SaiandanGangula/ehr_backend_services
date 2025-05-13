@@ -194,7 +194,7 @@ data class PatientRelationshipDto(
 data class TokenDto(
     val tokenNumber: String,
     val issueDate: LocalDate? = null,          // optional override
-    val expiryDate: LocalDate,
+    val expiryDate: LocalDate? = null,
     val status: TokenStatus = TokenStatus.Active,
     val isRegistered: Boolean = false,
     val allocatedTo: String

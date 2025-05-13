@@ -50,6 +50,25 @@ import java.time.LocalDate
         )
     ).list()
 
+    fun findDuplicate(first: String,
+                      abhaNumber: String?,
+                      email: String?): Patient? = find(
+        /*language=JPQL*/
+        """
+        SELECT DISTINCT p
+          FROM Patient p
+          LEFT JOIN PatientContact c ON c.patient = p
+         WHERE lower(p.firstName) = lower(:fn)
+           AND ( (:abha IS NOT NULL AND p.identifierType = 'ABHA'
+                                 AND p.identifierNumber = :abha)
+                 OR
+                 (:mail IS NOT NULL AND lower(c.email) = lower(:mail)) )
+        """.trimIndent(),
+        mapOf("fn" to first,
+            "abha" to abhaNumber,
+            "mail" to email)
+    ).firstResult()
+
 
 }
 @ApplicationScoped class PatientContactRepository     : PanacheRepositoryBase<PatientContact, Long>
