@@ -141,8 +141,8 @@ data class AddressDto(
 
     @field:PostalCode
     val pincode: String? = null,
-    val districtId: UUID? = null,
-    val stateId: UUID? = null,
+    val districtId: String? = null,
+    val stateId: String? = null,
     val country: String = "India"
 )
 

@@ -121,8 +121,8 @@ data class PatientAddress(
     var localityOrSector: String? = null,
     var cityOrVillage: String? = null,
     var pincode: String? = null,
-    var districtId: UUID? = null,
-    var stateId: UUID? = null,
+    var districtId: String? = null,
+    var stateId: String? = null,
     var country: String = "India"
 )
 

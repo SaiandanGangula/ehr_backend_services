@@ -108,7 +108,23 @@ class PatientService @Inject constructor(
         dto.bloodGroup?.let { p.bloodGroup = it }
         dto.maritalStatus?.let { p.maritalStatus = it }
         dto.occupation?.let { p.occupation = it }
-        // … add any other mutable columns …
+        dto.contacts?.let {
+            contactDtos -> p.contacts = contactDtos.map { dtoContact ->
+            PatientContact(
+                patient                = p,
+                mobileNumber           = dtoContact.mobileNumber.orEmpty(),
+                phoneNumber            = dtoContact.phoneNumber,
+                email                  = dtoContact.email,
+                preferredContactMode   = dtoContact.preferredContactMode,
+                phoneContactPreference = dtoContact.phoneContactPreference,
+                consentToShare         = dtoContact.consentToShare
+            )
+        }.toMutableList()
+        }
+
+        dto.addresses?.let {
+            addressDtos ->
+        }
 
         return p.toDto(cfgSvc)
     }
