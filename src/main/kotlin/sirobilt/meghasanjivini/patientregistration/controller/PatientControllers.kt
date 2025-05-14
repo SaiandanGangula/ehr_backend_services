@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
-import org.jboss.resteasy.reactive.RestResponse
+import org.jboss.logging.Logger
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.service.PatientService
 import java.net.URI
@@ -26,29 +26,26 @@ class PatientController @Inject constructor(
 
 
 
-    /* ---------- create ---------- */
-    @POST
-    @Transactional
-    @Operation(summary = "Register a patient together with contacts and other aggregates.")
-    fun register(@Valid dto: PatientRegistrationDto): Response? {
+    private val logger: Logger = Logger.getLogger(PatientController::class.java)
 
-        val email = dto.contacts
-            ?.firstOrNull()?.email       // choose your own “primary e-mail” rule
-        if (patientSvc.exists(dto.firstName ?: "",
-                dto.identifierType,
-                dto.identifierNumber,
-                email)) {
-            return Response.status(Response.Status.CONFLICT)       // 409
-                .entity(mapOf("error" to "Patient already exists"))
+    @POST
+    fun register(dto: PatientRegistrationDto): Response {
+        try {
+            logger.info("Incoming Register Patient Request: $dto")
+
+            val response = patientSvc.register(dto)
+
+            logger.info("Patient created successfully: patientId=${response.patientId}")
+            return Response.status(Response.Status.CREATED).entity(response).build()
+
+        } catch (e: Exception) {
+            logger.error("Error occurred during patient registration", e)
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(mapOf("error" to e.localizedMessage))
                 .build()
         }
-        val saved = patientSvc.register(dto)
-
-        return Response.status(Response.Status.CREATED)   // 201
-            .entity(saved)                               // body
-            .location(URI.create("/api/patients/${saved.patientId}"))
-            .build()
     }
+
 
     /* ---------- update (identifiers immutable) ---------- */
     @PUT @Path("/{id}") @Transactional

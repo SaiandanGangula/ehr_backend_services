@@ -56,7 +56,7 @@ class PatientService @Inject constructor(
                     email = dtoContact.email,
                     preferredContactMode = dtoContact.preferredContactMode,
                     phoneContactPreference = dtoContact.phoneContactPreference,
-                    consentToShare = dtoContact.consentToShare ?: false
+                    consentToShare = dtoContact.consentToShare
                 )
             }.toMutableList()
         }
