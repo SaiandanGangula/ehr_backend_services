@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.model.FieldType
-import sirobilt.meghasanjivini.patientregistration.service.FieldConfigService
 
 /**
  * Single entry-point for every validation rule related to patient registration.
@@ -19,7 +18,7 @@ import sirobilt.meghasanjivini.patientregistration.service.FieldConfigService
 @ApplicationScoped
 class PatientValidator @Inject constructor(
     private val beanValidator: Validator,
-    private val cfgSvc: FieldConfigService
+
 ) {
 
     /* ---------------- PUBLIC API ---------------- */
@@ -32,7 +31,6 @@ class PatientValidator @Inject constructor(
         beanValidator.validate(dto).also { if (it.isNotEmpty()) throw ConstraintViolationException(it) }
 
         // 2. dynamic – required fields configured in registration_field_config
-        validateDynamicRequired(dto)
 
         // 3. custom business rules (phone format, duplicates, etc.)
         validateContacts(dto.contacts)
@@ -40,29 +38,7 @@ class PatientValidator @Inject constructor(
 
     /* ---------------- PRIVATE HELPERS ---------------- */
 
-    private fun validateDynamicRequired(dto: PatientRegistrationDto) {
-        val requiredFields = cfgSvc.visible()
-            .filter { it.required }
-            .map { it.name }
-            .toSet()
 
-        val missing = mutableListOf<String>()
-
-        fun missingIfEmpty(name: String, value: Any?) {
-            if (name in requiredFields && (value == null ||
-                        (value is String && value.isBlank())))
-                missing += name
-        }
-
-        missingIfEmpty("firstName",     dto.firstName)
-        missingIfEmpty("lastName",      dto.lastName)
-        missingIfEmpty("dateOfBirth",   dto.dateOfBirth)
-        missingIfEmpty("gender",        dto.gender)
-        // add others if you surface them on PatientRegistrationDto
-
-        if (missing.isNotEmpty())
-            throw IllegalArgumentException("Missing required fields: ${missing.joinToString()}")
-    }
 
     /** +91 followed by 10 digits, first digit ≠ 0 */
     private val phoneRegex = Regex("""^\+91[1-9]\d{9}$""")

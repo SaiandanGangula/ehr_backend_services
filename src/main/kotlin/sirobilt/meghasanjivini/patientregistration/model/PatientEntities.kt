@@ -78,35 +78,7 @@ data class EmergencyContact(
     var phoneNumber: String?       = null
 )
 
-/* ------------------------------------------------------------------ */
-/* 4. Dynamic-form metadata                                           */
-/* ------------------------------------------------------------------ */
-@Entity
-@Table(name = "registration_field_config")
-data class FieldConfig(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var configId: Long?            = null,
 
-    var fieldName: String          = "",
-    var label: String              = "",
-    @Enumerated(EnumType.STRING)
-    var fieldType: FieldType       = FieldType.TEXT,
-    var required: Boolean          = false,
-    var visible: Boolean           = true,
-    var sortOrder: Int             = 0
-)
-
-@Entity
-@Table(name = "registration_field_option")
-data class FieldOption(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var optionId: Long?            = null,
-
-    var fieldName: String?         = null,
-    var value: String?             = null,
-    var display: String?           = null,
-    var sortOrder: Int?             = 0
-)
 
 @Entity @Table(name = "patient_addresses")
 data class PatientAddress(

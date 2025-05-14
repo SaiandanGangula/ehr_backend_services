@@ -113,7 +113,7 @@ data class PatientResponseDto(
     val phone: String? = null,
     val email: String? = null,
     /** every visible field/value pair as decided by FieldConfig */
-    val dynamic: Map<String, Any?>
+
 )
 
 /* ──────────────────────────────────────────────────────────────── *
@@ -200,21 +200,3 @@ data class TokenDto(
     val allocatedTo: String
 )
 
-/* ──────────────────────────────────────────────────────────────── *
- *  4. Dynamic-form metadata DTOs (for completeness)               *
- * ──────────────────────────────────────────────────────────────── */
-data class FieldConfigDto(
-    val name: String,
-    val label: String,
-    val type: FieldType,
-    val required: Boolean,
-    val options: List<FieldOptionDto>,
-    val sortOrder: Int?
-)
-
-data class FieldOptionDto(
-    val fieldName: String?,
-    val value: String?,
-    val display: String?,
-    val sortOrder: Int? = 0
-)

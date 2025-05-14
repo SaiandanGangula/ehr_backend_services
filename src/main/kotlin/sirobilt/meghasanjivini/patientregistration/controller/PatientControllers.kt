@@ -10,7 +10,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.jboss.resteasy.reactive.RestResponse
 import sirobilt.meghasanjivini.patientregistration.dto.*
-import sirobilt.meghasanjivini.patientregistration.service.FieldConfigService
 import sirobilt.meghasanjivini.patientregistration.service.PatientService
 import java.net.URI
 import java.time.LocalDate
@@ -21,14 +20,11 @@ import java.util.*
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class PatientController @Inject constructor(
-    private val fieldSvc: FieldConfigService,
+
     private val patientSvc: PatientService
 ) {
 
-    /* ---------- dynamic form blueprint ---------- */
-    @GET @Path("/form-config")
-    @Operation(summary = "Return the current form blueprint (visible fields + options).")
-    fun formConfig() = fieldSvc.visible()
+
 
     /* ---------- create ---------- */
     @POST

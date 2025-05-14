@@ -82,14 +82,3 @@ import java.time.LocalDate
 @ApplicationScoped class PatientRelationshipRepository: PanacheRepositoryBase<PatientRelationship, Long>
 @ApplicationScoped class PatientTokenRepository       : PanacheRepositoryBase<PatientToken, Long>
 
-@ApplicationScoped
-class FieldConfigRepository : PanacheRepositoryBase<FieldConfig, Long> {
-    fun listVisibleOrdered() = find("visible = true ORDER BY sortOrder").list()
-}
-
-@ApplicationScoped
-class FieldOptionRepository : PanacheRepositoryBase<FieldOption, Long> {
-    fun listByFieldNameOrdered(name: String) =
-        find("fieldName = ?1 ORDER BY sortOrder", name).list()
-}
-
