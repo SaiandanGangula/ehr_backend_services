@@ -40,7 +40,34 @@ data class Patient(
 cascade = [CascadeType.ALL],
 orphanRemoval = true,
 fetch = FetchType.LAZY)
-var contacts: MutableList<PatientContact> = mutableListOf()
+var contacts: MutableList<PatientContact> = mutableListOf(),
+
+    @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+var addresses: MutableList<PatientAddress> = mutableListOf(),
+
+@OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+var emergencyContacts: MutableList<EmergencyContact> = mutableListOf(),
+
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+var billingReferral: BillingReferral? = null,
+
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+var insurance: PatientInsurance? = null,
+
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+var abha: PatientAbha? = null,
+
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+var informationSharing: InformationSharing? = null,
+
+@OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+var referrals: MutableList<Referral> = mutableListOf(),
+
+@OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+var relationships: MutableList<PatientRelationship> = mutableListOf(),
+
+@OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+var tokens: MutableList<PatientToken> = mutableListOf()
 )
 
 /* ------------------------------------------------------------------ */

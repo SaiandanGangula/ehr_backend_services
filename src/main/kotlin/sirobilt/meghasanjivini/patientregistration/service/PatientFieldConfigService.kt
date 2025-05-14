@@ -52,11 +52,11 @@ class PatientService @Inject constructor(
                 PatientContact(
                     patient = patient,
                     mobileNumber = dtoContact.mobileNumber.orEmpty(),
-                    phoneNumber = dtoContact.phoneNumber,
+                    phoneNumber = dtoContact.phoneNumber.orEmpty(),
                     email = dtoContact.email,
                     preferredContactMode = dtoContact.preferredContactMode,
                     phoneContactPreference = dtoContact.phoneContactPreference,
-                    consentToShare = dtoContact.consentToShare
+                    consentToShare = dtoContact.consentToShare ?: false
                 )
             }.toMutableList()
         }
@@ -77,17 +77,13 @@ class PatientService @Inject constructor(
     fun getById(id: UUID): PatientResponseDto =
         patientRepo.findById(id)?.toDto() ?: throw NotFoundException()
 
-
     fun exists(
         firstName: String,
         identifierType: IdentifierType,
         identifierNumber: String?,
         primaryEmail: String?
     ): Boolean {
-
-        val abha = if (identifierType == IdentifierType.ABHA)
-            identifierNumber else null
-
+        val abha = if (identifierType == IdentifierType.ABHA) identifierNumber else null
         return patientRepo.findDuplicate(firstName, abha, primaryEmail) != null
     }
 
@@ -103,20 +99,120 @@ class PatientService @Inject constructor(
     fun searchByCityOrName(city: String?, name: String?): List<PatientResponseDto> =
         patientRepo.searchByCityOrName(city, name)
             .map { it.toDto() }
-
-
 }
 
-// Move this to the bottom or another dedicated mapper file (recommended).
+
 fun Patient.toDto(): PatientResponseDto {
-    val firstContact = contacts.firstOrNull()
+    val firstContact = contacts?.firstOrNull()
+
     return PatientResponseDto(
-        patientId = id,
+        patientId = id!!,
+        facilityId = facilityId!!,
+        identifierType = identifierType!!,
+        identifierNumber = identifierNumber!!,
+        title = title,
+        firstName = firstName,
+        middleName = middleName,
+        lastName = lastName,
         fullName = listOfNotNull(firstName, middleName, lastName).joinToString(" "),
-        facilityId = facilityId,
-        identifierType = identifierType,
-        identifierNumber = identifierNumber,
+        dateOfBirth = dateOfBirth,
+        age = age,
+        gender = gender,
+        bloodGroup = bloodGroup,
+        maritalStatus = maritalStatus,
+        citizenship = citizenship,
+        religion = religion,
+        caste = caste,
+        occupation = occupation,
+        education = education,
+        annualIncome = annualIncome,
+        registrationDate = registrationDate!!,
+        isActive = isActive!!,
+        isDeceased = isDeceased!!,
         phone = firstContact?.phoneNumber,
-        email = firstContact?.email
+        email = firstContact?.email,
+
+        contacts = contacts.map { it.toDto() },
+        addresses = addresses?.map { it.toDto() },
+        emergencyContacts = emergencyContacts?.map { it.toDto() },
+        billingReferral = billingReferral?.toDto(),
+        insurance = insurance?.toDto(),
+        abha = abha?.toDto(),
+        informationSharing = informationSharing?.toDto(),
+        referrals = referrals?.map { it.toDto() },
+        relationships = relationships?.map { it.toDto() },
+        tokens = tokens?.map { it.toDto() }
     )
 }
+
+fun PatientContact.toDto() = ContactDto(
+    mobileNumber = this.mobileNumber,
+    phoneNumber = this.phoneNumber,
+    email = this.email,
+    preferredContactMode = this.preferredContactMode,
+    phoneContactPreference = this.phoneContactPreference,
+    consentToShare = this.consentToShare
+)
+
+fun PatientAddress.toDto() = AddressDto(
+    addressType = this.addressType,
+    houseNoOrFlatNo = this.houseNoOrFlatNo,
+    localityOrSector = this.localityOrSector,
+    cityOrVillage = this.cityOrVillage,
+    pincode = this.pincode,
+    districtId = this.districtId,
+    stateId = this.stateId,
+    country = this.country
+)
+
+fun EmergencyContact.toDto() = EmergencyContactDto(
+    contactName = this.contactName,
+    relationship = this.relationship,
+    phoneNumber = this.phoneNumber
+)
+
+fun BillingReferral.toDto() = BillingReferralDto(
+    billingType = this.billingType,
+    referredBy = this.referredBy
+)
+
+fun PatientInsurance.toDto() = PatientInsuranceDto(
+    insuranceProvider = this.insuranceProvider,
+    policyNumber = this.policyNumber,
+    policyStartDate = this.policyStartDate,
+    policyEndDate = this.policyEndDate,
+    coverageAmount = this.coverageAmount
+)
+
+fun PatientAbha.toDto() = AbhaDto(
+    abhaNumber = this.abhaNumber,
+    abhaAddress = this.abhaAddress
+)
+
+fun InformationSharing.toDto() = InformationSharingDto(
+    shareWithSpouse = this.shareWithSpouse,
+    shareWithChildren = this.shareWithChildren,
+    shareWithCaregiver = this.shareWithCaregiver,
+    shareWithOther = this.shareWithOther
+)
+
+fun Referral.toDto() = ReferralDto(
+    fromFacilityId = this.fromFacilityId,
+    toFacilityId = this.toFacilityId,
+    referralDate = this.referralDate,
+    reason = this.reason
+)
+
+fun PatientRelationship.toDto() = PatientRelationshipDto(
+    relativeId = this.relativeId,
+    relationshipType = this.relationshipType
+)
+
+fun PatientToken.toDto() = TokenDto(
+    tokenNumber = this.tokenNumber,
+    issueDate = this.issueDate?.toLocalDate(),
+    expiryDate = this.expiryDate?.toLocalDate(),
+    status = this.status,
+    isRegistered = this.isRegistered,
+    allocatedTo = this.allocatedTo
+)

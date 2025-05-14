@@ -5,7 +5,6 @@ import sirobilt.meghasanjivini.patientregistration.model.AddressType
 import sirobilt.meghasanjivini.patientregistration.model.BillingType
 import sirobilt.meghasanjivini.patientregistration.model.BloodGroup
 import sirobilt.meghasanjivini.patientregistration.model.ContactMode
-import sirobilt.meghasanjivini.patientregistration.model.FieldType
 import sirobilt.meghasanjivini.patientregistration.model.Gender
 import sirobilt.meghasanjivini.patientregistration.model.IdentifierType
 import sirobilt.meghasanjivini.patientregistration.model.MaritalStatus
@@ -19,6 +18,7 @@ import sirobilt.meghasanjivini.patientregistration.validation.PastDate
 import sirobilt.meghasanjivini.patientregistration.validation.PostalCode
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
 
 /* ──────────────────────────────────────────────────────────────── *
@@ -106,14 +106,42 @@ data class UpdatePatientDto(
  * ──────────────────────────────────────────────────────────────── */
 data class PatientResponseDto(
     val patientId: UUID,
-    val fullName: String,
     val facilityId: UUID,
     val identifierType: IdentifierType,
     val identifierNumber: String,
+    val title: Title? = null,
+    val firstName: String? = null,
+    val middleName: String? = null,
+    val lastName: String? = null,
+    val fullName: String,
+    val dateOfBirth: LocalDate? = null,
+    val age: Int? = null,
+    val gender: Gender? = null,
+    val bloodGroup: BloodGroup? = null,
+    val maritalStatus: MaritalStatus? = null,
+    val citizenship: String? = null,
+    val religion: String? = null,
+    val caste: String? = null,
+    val occupation: String? = null,
+    val education: String? = null,
+    val annualIncome: BigDecimal? = null,
+    val registrationDate: OffsetDateTime,
+    val isActive: Boolean,
+    val isDeceased: Boolean,
     val phone: String? = null,
     val email: String? = null,
-    /** every visible field/value pair as decided by FieldConfig */
 
+    // ✅ Correct child DTOs
+    val contacts: List<ContactDto>? = null,
+    val addresses: List<AddressDto>? = null,
+    val emergencyContacts: List<EmergencyContactDto>? = null,
+    val billingReferral: BillingReferralDto? = null,
+    val insurance: PatientInsuranceDto? = null,
+    val abha: AbhaDto? = null,
+    val informationSharing: InformationSharingDto? = null,
+    val referrals: List<ReferralDto>? = null,
+    val relationships: List<PatientRelationshipDto>? = null,
+    val tokens: List<TokenDto>? = null
 )
 
 /* ──────────────────────────────────────────────────────────────── *
