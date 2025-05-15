@@ -34,37 +34,191 @@ class PatientService @Inject constructor(
 
     @Transactional
     fun update(id: UUID, dto: UpdatePatientDto): PatientResponseDto {
-        val patient = patientRepo.findById(id) ?: throw NotFoundException()
+        val p = patientRepo.findById(id) ?: throw NotFoundException()
 
-        dto.firstName?.let { patient.firstName = it }
-        dto.middleName?.let { patient.middleName = it }
-        dto.lastName?.let { patient.lastName = it }
-        dto.dateOfBirth?.let { patient.dateOfBirth = it }
-        dto.gender?.let { patient.gender = it }
-        dto.title?.let { patient.title = it }
-        dto.age?.let { patient.age = it }
-        dto.bloodGroup?.let { patient.bloodGroup = it }
-        dto.maritalStatus?.let { patient.maritalStatus = it }
-        dto.occupation?.let { patient.occupation = it }
+        // — Scalar fields —
+        dto.facilityId     ?.let { p.facilityId     = it }
+        dto.identifierType ?.let { p.identifierType = it }
+        dto.identifierNumber?.let { p.identifierNumber = it }
+        dto.title          ?.let { p.title          = it }
+        dto.firstName      ?.let { p.firstName      = it }
+        dto.middleName     ?.let { p.middleName     = it }
+        dto.lastName       ?.let { p.lastName       = it }
+        dto.dateOfBirth    ?.let { p.dateOfBirth    = it }
+        dto.age            ?.let { p.age            = it }
+        dto.gender         ?.let { p.gender         = it }
+        dto.bloodGroup     ?.let { p.bloodGroup     = it }
+        dto.maritalStatus  ?.let { p.maritalStatus  = it }
+        dto.citizenship    ?.let { p.citizenship    = it }
+        dto.religion       ?.let { p.religion       = it }
+        dto.caste          ?.let { p.caste          = it }
+        dto.occupation     ?.let { p.occupation     = it }
+        dto.education      ?.let { p.education      = it }
+        dto.annualIncome   ?.let { p.annualIncome   = it }
 
-        dto.contacts?.let { contactDtos ->
-            patient.contacts = contactDtos.map { dtoContact ->
-                PatientContact(
-                    patient = patient,
-                    mobileNumber = dtoContact.mobileNumber.orEmpty(),
-                    phoneNumber = dtoContact.phoneNumber.orEmpty(),
-                    email = dtoContact.email,
-                    preferredContactMode = dtoContact.preferredContactMode,
-                    phoneContactPreference = dtoContact.phoneContactPreference,
-                    consentToShare = dtoContact.consentToShare
-                )
-            }.toMutableList()
+
+        // — One-to-many collections: clear + repopulate if provided —
+        dto.contacts?.let { list ->
+            p.contacts.apply {
+                clear()
+                list.forEach { c ->
+                    add(PatientContact(
+                        patient                = p,
+                        mobileNumber           = c.mobileNumber.orEmpty(),
+                        phoneNumber            = c.phoneNumber.orEmpty(),
+                        email                  = c.email,
+                        preferredContactMode   = c.preferredContactMode,
+                        phoneContactPreference = c.phoneContactPreference,
+                        consentToShare         = c.consentToShare
+                    ))
+                }
+            }
         }
 
-        patientRepo.persist(patient)
+        dto.addresses?.let { list ->
+            p.addresses.apply {
+                clear()
+                list.forEach { a ->
+                    add(PatientAddress(
+                        patient          = p,
+                        addressType      = a.addressType,
+                        houseNoOrFlatNo  = a.houseNoOrFlatNo,
+                        localityOrSector = a.localityOrSector,
+                        cityOrVillage    = a.cityOrVillage,
+                        pincode          = a.pincode,
+                        districtId       = a.districtId,
+                        stateId          = a.stateId,
+                        country          = a.country
+                    ))
+                }
+            }
+        }
 
-        return patient.toDto()
+        dto.emergencyContacts?.let { list ->
+            p.emergencyContacts.apply {
+                clear()
+                list.forEach { e ->
+                    add(EmergencyContact(
+                        patient      = p,
+                        contactName  = e.contactName,
+                        relationship = e.relationship,
+                        phoneNumber  = e.phoneNumber
+                    ))
+                }
+            }
+        }
+
+        dto.referrals?.let { list ->
+            p.referrals.apply {
+                clear()
+                list.forEach { r ->
+                    add(Referral(
+                        patient         = p,
+                        fromFacilityId  = r.fromFacilityId,
+                        toFacilityId    = r.toFacilityId,
+                        referralDate    = r.referralDate,
+                        reason          = r.reason
+                    ))
+                }
+            }
+        }
+
+        dto.relationships?.let { list ->
+            p.relationships.apply {
+                clear()
+                list.forEach { rel ->
+                    add(PatientRelationship(
+                        patient           = p,
+                        relativeId        = rel.relativeId,
+                        relationshipType  = rel.relationshipType
+                    ))
+                }
+            }
+        }
+
+        dto.tokens?.let { list ->
+            p.tokens.apply {
+                clear()
+                list.forEach { t ->
+                    add(PatientToken(
+                        patient      = p,
+                        tokenNumber  = t.tokenNumber,
+
+                        status       = t.status,
+                        isRegistered = t.isRegistered,
+                        allocatedTo  = t.allocatedTo
+                    ))
+                }
+            }
+        }
+
+        // — One-to-one associations: update existing or create new if provided —
+        dto.billingReferral?.let { br ->
+            p.billingReferral = p.billingReferral
+                ?.apply {
+                    billingType = br.billingType
+                    referredBy  = br.referredBy
+                }
+                ?: BillingReferral(
+                    patient     = p,
+                    billingType = br.billingType,
+                    referredBy  = br.referredBy
+                )
+        }
+
+        dto.insurance?.let { ins ->
+            p.insurance = p.insurance
+                ?.apply {
+                    insuranceProvider = ins.insuranceProvider
+                    policyNumber      = ins.policyNumber
+                    policyStartDate   = ins.policyStartDate
+                    policyEndDate     = ins.policyEndDate
+                    coverageAmount    = ins.coverageAmount
+                }
+                ?: PatientInsurance(
+                    patient           = p,
+                    insuranceProvider = ins.insuranceProvider,
+                    policyNumber      = ins.policyNumber,
+                    policyStartDate   = ins.policyStartDate,
+                    policyEndDate     = ins.policyEndDate,
+                    coverageAmount    = ins.coverageAmount
+                )
+        }
+
+        dto.abha?.let { a ->
+            p.abha = p.abha
+                ?.apply {
+                    abhaNumber  = a.abhaNumber
+                    abhaAddress = a.abhaAddress
+                }
+                ?: PatientAbha(
+                    patient     = p,
+                    abhaNumber  = a.abhaNumber,
+                    abhaAddress = a.abhaAddress
+                )
+        }
+
+        dto.informationSharing?.let { inf ->
+            p.informationSharing = p.informationSharing
+                ?.apply {
+                    shareWithSpouse    = inf.shareWithSpouse
+                    shareWithChildren  = inf.shareWithChildren
+                    shareWithCaregiver = inf.shareWithCaregiver
+                    shareWithOther     = inf.shareWithOther
+                }
+                ?: InformationSharing(
+                    patient            = p,
+                    shareWithSpouse    = inf.shareWithSpouse,
+                    shareWithChildren  = inf.shareWithChildren,
+                    shareWithCaregiver = inf.shareWithCaregiver,
+                    shareWithOther     = inf.shareWithOther
+                )
+        }
+
+        // No explicit persist needed if 'p' is still managed; Quarkus/Hibernate will flush at commit
+        return p.toDto()
     }
+
 
     fun listAll(): List<PatientResponseDto> =
         patientRepo.findAll().list().map { it.toDto() }

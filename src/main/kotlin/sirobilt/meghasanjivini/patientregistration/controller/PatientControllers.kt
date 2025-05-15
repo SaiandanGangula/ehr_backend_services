@@ -77,4 +77,26 @@ class PatientController @Inject constructor(
                 patientSvc.searchByCityOrName(city, name)
             else -> patientSvc.listAll()
         }
-}
+
+
+    @DELETE
+    @Path("/{id}")
+    @Operation(
+        summary = "Delete a patient",
+        description = "Deletes a patient by UUID including all associated data.",
+
+    )
+    fun deletePatient(@PathParam("id") id: UUID): Response {
+        try {
+            patientSvc.delete(id)
+            return Response.noContent().header("API-Response", "Patient Deleted").build() // 204 No Content on successful deletion
+        } catch (e: NotFoundException) {
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity(mapOf("error" to "Patient not found with id $id"))
+                .build()
+        } catch (e: Exception) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(mapOf("error" to "Internal Server Error"))
+                .build()
+        }
+    }}

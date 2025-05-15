@@ -15,6 +15,7 @@ data class Patient(
     var id: UUID = UUID.randomUUID(),
 
     var facilityId: UUID = UUID.randomUUID(),
+
     @Enumerated(EnumType.STRING) var identifierType: IdentifierType = IdentifierType.ABHA,
     var identifierNumber: String = "",
 
@@ -48,16 +49,16 @@ var addresses: MutableList<PatientAddress> = mutableListOf(),
 @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
 var emergencyContacts: MutableList<EmergencyContact> = mutableListOf(),
 
-@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL],orphanRemoval = true, fetch = FetchType.LAZY)
 var billingReferral: BillingReferral? = null,
 
-@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL],orphanRemoval = true, fetch = FetchType.LAZY)
 var insurance: PatientInsurance? = null,
 
-@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL],orphanRemoval = true, fetch = FetchType.LAZY)
 var abha: PatientAbha? = null,
 
-@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+@OneToOne(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
 var informationSharing: InformationSharing? = null,
 
 @OneToMany(mappedBy = "patient", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
