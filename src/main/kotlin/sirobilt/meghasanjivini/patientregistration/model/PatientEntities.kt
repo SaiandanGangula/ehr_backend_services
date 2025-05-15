@@ -33,7 +33,7 @@ data class Patient(
     var caste: String? = null,
     var occupation: String? = null,
     var education: String? = null,
-    var annualIncome: BigDecimal? = null,
+    var annualIncome: String? = null,
     var registrationDate: OffsetDateTime = OffsetDateTime.now(),
     var isActive: Boolean = true,
     var isDeceased: Boolean = false,
@@ -228,5 +228,16 @@ data class PatientToken(
     var allocatedTo: String = ""
 )
 
-/* ─── Dynamic-form metadata (unchanged) ────────────────────── */
 
+@Entity
+@Table(name = "token_sequence")
+data class TokenSequence(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var sequenceId: Long? = null,
+
+    @Column(name = "date_of_issue", unique = true)
+    var dateOfIssue: LocalDate = LocalDate.now(),
+
+    @Column(name = "last_token_number")
+    var lastTokenNumber: Int = 0
+)

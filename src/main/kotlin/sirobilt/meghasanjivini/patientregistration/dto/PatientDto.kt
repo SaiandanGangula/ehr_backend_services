@@ -48,7 +48,7 @@ data class PatientRegistrationDto(
     val caste: String?           = null,
     val occupation: String?      = null,
     val education: String?       = null,
-    val annualIncome: BigDecimal?= null,
+    val annualIncome: String?= null,
 
     val dynamic:           Map<String,Any?>? = null,
 
@@ -86,7 +86,7 @@ data class UpdatePatientDto(
     val caste: String?           = null,
     val occupation: String?      = null,
     val education: String?       = null,
-    val annualIncome: BigDecimal?= null,
+    val annualIncome: String?= null,
 
     // --- child collections / aggregates --------------------------
     val contacts:           List<ContactDto>?            = null,
@@ -124,7 +124,7 @@ data class PatientResponseDto(
     val caste: String? = null,
     val occupation: String? = null,
     val education: String? = null,
-    val annualIncome: BigDecimal? = null,
+    val annualIncome: String? = null,
     val registrationDate: OffsetDateTime,
     val isActive: Boolean,
     val isDeceased: Boolean,

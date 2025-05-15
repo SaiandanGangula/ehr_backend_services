@@ -1,5 +1,6 @@
 package sirobilt.meghasanjivini.patientregistration.repository
 
+import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
@@ -81,4 +82,10 @@ import java.time.LocalDate
 @ApplicationScoped class ReferralRepository           : PanacheRepositoryBase<Referral, Long>
 @ApplicationScoped class PatientRelationshipRepository: PanacheRepositoryBase<PatientRelationship, Long>
 @ApplicationScoped class PatientTokenRepository       : PanacheRepositoryBase<PatientToken, Long>
+@ApplicationScoped
+class TokenSequenceRepository : PanacheRepository<TokenSequence, > {
 
+    fun findByDate(date: LocalDate): TokenSequence? {
+        return find("dateOfIssue", date).firstResult()
+    }
+}

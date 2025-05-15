@@ -4,6 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
+import org.jboss.logging.Logger
+import sirobilt.meghasanjivini.patientregistration.controller.PatientController
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.model.*
 import sirobilt.meghasanjivini.patientregistration.repository.*
@@ -16,18 +18,33 @@ class PatientService @Inject constructor(
     private val contactRepo: PatientContactRepository,
     private val addressRepo: PatientAddressRepository,
     private val emergencyRepo: EmergencyContactRepository,
-    private val insuranceRepo: PatientInsuranceRepository
+    private val insuranceRepo: PatientInsuranceRepository,
+    private val tokenManagerService: TokenManagerService,
+    private val tokenRepository: PatientTokenRepository
 ) {
+
+    private val logger: Logger = Logger.getLogger(PatientService::class.java)
+
 
     @Transactional
     fun register(dto: PatientRegistrationDto): PatientResponseDto {
+
+
+        logger.info("Patient registration started")
         val patient = dto.toEntity()
+
         patientRepo.persist(patient)
 
         dto.contacts?.map { it.toEntity(patient) }?.let { contactRepo.persist(it) }
         dto.addresses?.map { it.toEntity(patient) }?.let { addressRepo.persist(it) }
         dto.emergencyContacts?.map { it.toEntity(patient) }?.let { emergencyRepo.persist(it) }
         dto.insurance?.toEntity(patient)?.let { insuranceRepo.persist(it) }
+
+
+
+        val patientToken = tokenManagerService.generateNewTokenForPatient(patient)
+        logger.info("token generated with token $patientToken " )
+        tokenRepository.persist(patientToken)
 
         return patient.toDto()
     }
@@ -253,6 +270,9 @@ class PatientService @Inject constructor(
     fun searchByCityOrName(city: String?, name: String?): List<PatientResponseDto> =
         patientRepo.searchByCityOrName(city, name)
             .map { it.toDto() }
+
+
+
 }
 
 
