@@ -40,6 +40,7 @@ fun PatientRegistrationDto.toEntity(): Patient {
 /* ContactDto.kt */
 fun ContactDto.toEntity(owner: Patient) = PatientContact(
     patient = owner,
+    mobileNumber = mobileNumber,
     phoneNumber = phoneNumber,
     email = email,
     preferredContactMode = preferredContactMode,

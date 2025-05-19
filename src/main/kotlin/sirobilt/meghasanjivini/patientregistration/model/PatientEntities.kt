@@ -99,7 +99,7 @@ class PatientContact(
     @JsonBackReference
     var patient: Patient = Patient(),
 
-    var mobileNumber: String = "",
+    var mobileNumber: String? = "",
     var phoneNumber: String = "",
     var email: String? = null,
     @Enumerated(EnumType.STRING)
