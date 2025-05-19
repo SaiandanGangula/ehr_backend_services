@@ -1,5 +1,6 @@
 package sirobilt.meghasanjivini.patientregistration.dto
 
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import sirobilt.meghasanjivini.patientregistration.model.AddressType
 import sirobilt.meghasanjivini.patientregistration.model.BillingType
@@ -50,10 +51,12 @@ data class PatientRegistrationDto(
     val education: String?       = null,
     val annualIncome: String?= null,
 
-    val dynamic:           Map<String,Any?>? = null,
+
 
     // --- child collections / aggregates --------------------------
-    val contacts:           List<ContactDto>?            = null,
+
+    @field:Valid
+    val contacts:           List<@Valid ContactDto>?            = null,
     val addresses:          List<AddressDto>?            = null,
     val abha:               AbhaDto?                     = null,
     val billingReferral:    BillingReferralDto?          = null,
@@ -101,9 +104,7 @@ data class UpdatePatientDto(
     val tokens:             List<TokenDto>?              = null
 )
 
-/* ──────────────────────────────────────────────────────────────── *
- *  2. Patient registration (RESPONSE – static + dynamic)          *
- * ──────────────────────────────────────────────────────────────── */
+
 data class PatientResponseDto(
     val patientId: UUID,
     val facilityId: UUID,

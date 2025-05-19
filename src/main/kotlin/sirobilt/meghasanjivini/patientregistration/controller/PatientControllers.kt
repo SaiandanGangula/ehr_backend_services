@@ -7,6 +7,7 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.openapi.annotations.Operation
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.jboss.logging.Logger
 import sirobilt.meghasanjivini.patientregistration.dto.*
@@ -29,7 +30,7 @@ class PatientController @Inject constructor(
     private val logger: Logger = Logger.getLogger(PatientController::class.java)
 
     @POST
-    fun register(dto: PatientRegistrationDto): Response {
+    fun register(@RequestBody @Valid  dto: PatientRegistrationDto): Response {
         try {
             logger.info("Incoming Register Patient Request: $dto")
 

@@ -33,12 +33,6 @@ fun PatientRegistrationDto.toEntity(): Patient {
         annualIncome     = annualIncome
     )
 
-    /* ---- apply dynamic map, if present ---- */
-    dynamic?.forEach { (key, value) ->
-        val prop = Patient::class.memberProperties
-            .firstOrNull { it.name == key } as? KMutableProperty1<*, *>
-        prop?.let { it.setter.call(p, value) }
-    }
 
     return p
 }

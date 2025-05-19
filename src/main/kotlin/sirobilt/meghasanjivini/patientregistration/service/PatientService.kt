@@ -20,7 +20,13 @@ class PatientService @Inject constructor(
     private val emergencyRepo: EmergencyContactRepository,
     private val insuranceRepo: PatientInsuranceRepository,
     private val tokenManagerService: TokenManagerService,
-    private val tokenRepository: PatientTokenRepository
+    private val tokenRepository: PatientTokenRepository,
+    private val billingReferralRepo: BillingReferralRepository,
+    private val infoSharingRepo: InformationSharingRepository,
+    private val referralRepo: ReferralRepository,
+    private val relationshipRepo: PatientRelationshipRepository,
+    private val abhaRepo: PatientAbhaRepository,
+
 ) {
 
     private val logger: Logger = Logger.getLogger(PatientService::class.java)
@@ -28,26 +34,102 @@ class PatientService @Inject constructor(
 
     @Transactional
     fun register(dto: PatientRegistrationDto): PatientResponseDto {
-
-
         logger.info("Patient registration started")
-        val patient = dto.toEntity()
 
+        // 1) create & persist the Patient
+        val patient = dto.toEntity()
         patientRepo.persist(patient)
 
-        dto.contacts?.map { it.toEntity(patient) }?.let { contactRepo.persist(it) }
-        dto.addresses?.map { it.toEntity(patient) }?.let { addressRepo.persist(it) }
-        dto.emergencyContacts?.map { it.toEntity(patient) }?.let { emergencyRepo.persist(it) }
-        dto.insurance?.toEntity(patient)?.let { insuranceRepo.persist(it) }
+        // 2) persist contacts
+        dto.contacts
+            ?.map { it.toEntity(patient) }
+            ?.also { contactEntities: List<PatientContact> ->
+                contactRepo.persist(contactEntities)
+                patient.contacts.addAll(contactEntities)
+            }
 
+        // 3) persist addresses
+        dto.addresses
+            ?.map { it.toEntity(patient) }
+            ?.also { addressEntities: List<PatientAddress> ->
+                addressRepo.persist(addressEntities)
+                patient.addresses.addAll(addressEntities)
+            }
 
+        // 4) persist emergency contacts
+        dto.emergencyContacts
+            ?.map { it.toEntity(patient) }
+            ?.also { emergencyEntities: List<EmergencyContact> ->
+                emergencyRepo.persist(emergencyEntities)
+                patient.emergencyContacts.addAll(emergencyEntities)
+            }
 
-        val patientToken = tokenManagerService.generateNewTokenForPatient(patient)
-        logger.info("token generated with token $patientToken " )
-        tokenRepository.persist(patientToken)
+        // 5) persist insurance (one-to-one)
+        dto.insurance
+            ?.toEntity(patient)
+            ?.also { insuranceEntity: PatientInsurance ->
+                insuranceRepo.persist(insuranceEntity)
+                patient.insurance = insuranceEntity
+            }
 
+        // 6) persist ABHA (one-to-one)
+        dto.abha
+            ?.toEntity(patient)
+            ?.also { abhaEntity: PatientAbha ->
+                abhaRepo.persist(abhaEntity)
+                patient.abha = abhaEntity
+            }
+
+        // 7) persist billing referral (one-to-one)
+        dto.billingReferral
+            ?.toEntity(patient)
+            ?.also { billingReferralEntity: BillingReferral ->
+                billingReferralRepo.persist(billingReferralEntity)
+                patient.billingReferral = billingReferralEntity
+            }
+
+        // 8) persist information sharing (one-to-one)
+        dto.informationSharing
+            ?.toEntity(patient)
+            ?.also { infoSharingEntity: InformationSharing ->
+                infoSharingRepo.persist(infoSharingEntity)
+                patient.informationSharing = infoSharingEntity
+            }
+
+        // 9) persist referrals
+        dto.referrals
+            ?.map { it.toEntity(patient) }
+            ?.also { referralEntities: List<Referral> ->
+                referralRepo.persist(referralEntities)
+                patient.referrals.addAll(referralEntities)
+            }
+
+        // 10) persist relationships
+        dto.relationships
+            ?.map { it.toEntity(patient) }
+            ?.also { relationshipEntities: List<PatientRelationship> ->
+                relationshipRepo.persist(relationshipEntities)
+                patient.relationships.addAll(relationshipEntities)
+            }
+
+        // 11) persist tokens from DTO
+        dto.tokens
+            ?.map { it.toEntity(patient) }
+            ?.also { tokenEntities: List<PatientToken> ->
+                tokenRepository.persist(tokenEntities)
+                patient.tokens.addAll(tokenEntities)
+            }
+
+        // 12) generate & persist a new PatientToken
+        val generatedToken: PatientToken = tokenManagerService.generateNewTokenForPatient(patient)
+        tokenRepository.persist(generatedToken)
+        patient.tokens.add(generatedToken)
+        logger.info("Token generated: $generatedToken")
+
+        // 13) return fully-populated DTO
         return patient.toDto()
     }
+
 
     @Transactional
     fun update(id: UUID, dto: UpdatePatientDto): PatientResponseDto {
@@ -390,3 +472,55 @@ fun PatientToken.toDto() = TokenDto(
     isRegistered = this.isRegistered,
     allocatedTo = this.allocatedTo
 )
+
+fun AbhaDto.toEntity(owner: Patient): PatientAbha =
+    PatientAbha(
+        patient     = owner,
+        abhaNumber  = this.abhaNumber.orEmpty(),
+        abhaAddress = this.abhaAddress.orEmpty()
+    )
+
+fun BillingReferralDto.toEntity(owner: Patient): BillingReferral =
+    BillingReferral(
+        patient     = owner,
+        billingType = this.billingType,
+        referredBy  = this.referredBy.orEmpty()
+    )
+
+fun InformationSharingDto.toEntity(owner: Patient): InformationSharing =
+    InformationSharing(
+        patient           = owner,
+        shareWithSpouse   = this.shareWithSpouse,
+        shareWithChildren = this.shareWithChildren,
+        shareWithCaregiver= this.shareWithCaregiver,
+        shareWithOther    = this.shareWithOther
+    )
+
+fun ReferralDto.toEntity(owner: Patient): Referral =
+    Referral(
+        patient        = owner,
+        fromFacilityId = this.fromFacilityId,
+        toFacilityId   = this.toFacilityId,
+        referralDate   = this.referralDate,
+        reason         = this.reason.orEmpty()
+    )
+
+fun PatientRelationshipDto.toEntity(owner: Patient): PatientRelationship =
+    PatientRelationship(
+        patient          = owner,
+        relativeId       = this.relativeId,
+        relationshipType = this.relationshipType
+    )
+
+fun TokenDto.toEntity(owner: Patient): PatientToken =
+    PatientToken(
+        patient      = owner,
+        tokenNumber  = this.tokenNumber,
+        issueDate    = this.issueDate?.atStartOfDay()?.let { java.time.OffsetDateTime.of(it, java.time.ZoneOffset.UTC) }
+            ?: java.time.OffsetDateTime.now(),
+        expiryDate   = this.expiryDate?.atStartOfDay()?.let { java.time.OffsetDateTime.of(it, java.time.ZoneOffset.UTC) }
+            ?: java.time.OffsetDateTime.now().plusDays(1),
+        status       = this.status,
+        isRegistered = this.isRegistered,
+        allocatedTo  = this.allocatedTo
+    )
