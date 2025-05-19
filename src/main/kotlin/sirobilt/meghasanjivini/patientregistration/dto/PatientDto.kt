@@ -38,7 +38,7 @@ data class PatientRegistrationDto(
     val middleName: String?      = null,
     val lastName: String?        = null,
 
-    @field:PastDate
+
     val dateOfBirth: LocalDate?  = null,
     val age: Int?                = null,
     val gender: Gender?          = null,
@@ -55,8 +55,8 @@ data class PatientRegistrationDto(
 
     // --- child collections / aggregates --------------------------
 
-    @field:Valid
-    val contacts:           List<@Valid ContactDto>?            = null,
+
+    val contacts:           List<ContactDto>?            = null,
     val addresses:          List<AddressDto>?            = null,
     val abha:               AbhaDto?                     = null,
     val billingReferral:    BillingReferralDto?          = null,
@@ -151,11 +151,11 @@ data class PatientResponseDto(
 data class ContactDto(
 
 
-    @field:IndianMobile
+
     val mobileNumber: String?,
-    @field:IndianMobile
+
     val phoneNumber: String,
-    @field:Email
+
     val email: String? = null,
     val preferredContactMode: ContactMode? = null,
     val phoneContactPreference: PhonePref? = null,
@@ -168,7 +168,7 @@ data class AddressDto(
     val localityOrSector: String? = null,
     val cityOrVillage: String? = null,
 
-    @field:PostalCode
+
     val pincode: String? = null,
     val districtId: String? = null,
     val stateId: String? = null,
@@ -177,7 +177,7 @@ data class AddressDto(
 
 data class AbhaDto(
 
-    @field:AbhaNumber
+
     val abhaNumber: String?,
     val abhaAddress: String?
 )
