@@ -85,7 +85,7 @@ class InsuranceDateRangeValidator
     : ConstraintValidator<InsuranceDateRange, PatientInsuranceDto> {
 
     override fun isValid(dto: PatientInsuranceDto, ctx: ConstraintValidatorContext): Boolean {
-        return !dto.policyEndDate.isBefore(dto.policyStartDate)
+        return !dto.policyEndDate?.isBefore(dto.policyStartDate)!!
     }
 }
 

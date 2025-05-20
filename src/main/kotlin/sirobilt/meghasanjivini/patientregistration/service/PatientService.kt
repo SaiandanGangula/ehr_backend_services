@@ -5,7 +5,6 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.NotFoundException
 import org.jboss.logging.Logger
-import sirobilt.meghasanjivini.patientregistration.controller.PatientController
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.model.*
 import sirobilt.meghasanjivini.patientregistration.repository.*
@@ -275,12 +274,12 @@ class PatientService @Inject constructor(
                     coverageAmount    = ins.coverageAmount
                 }
                 ?: PatientInsurance(
-                    patient           = p,
+                    patient = p,
                     insuranceProvider = ins.insuranceProvider,
-                    policyNumber      = ins.policyNumber,
-                    policyStartDate   = ins.policyStartDate,
-                    policyEndDate     = ins.policyEndDate,
-                    coverageAmount    = ins.coverageAmount
+                    policyNumber = ins.policyNumber,
+                    policyStartDate = ins.policyStartDate,
+                    policyEndDate = ins.policyEndDate,
+                    coverageAmount = ins.coverageAmount
                 )
         }
 

@@ -230,11 +230,11 @@ class PatientInsurance(
     @JsonBackReference
     var patient: Patient = Patient(),
 
-    var insuranceProvider: String = "",
-    var policyNumber: String = "",
-    var policyStartDate: LocalDate = LocalDate.now(),
-    var policyEndDate: LocalDate = LocalDate.now(),
-    var coverageAmount: BigDecimal = BigDecimal.ZERO
+    var insuranceProvider: String? = null,
+    var policyNumber: String? = null,
+    var policyStartDate: LocalDate? = LocalDate.now(),
+    var policyEndDate: LocalDate? = LocalDate.now(),
+    var coverageAmount: BigDecimal? = BigDecimal.ZERO
 ) {
     override fun toString(): String {
         return "PatientInsurance(id=$insuranceId, provider=$insuranceProvider)"

@@ -1,14 +1,22 @@
 package sirobilt.meghasanjivini.masterdata.repository
 
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
+import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
+import sirobilt.meghasanjivini.masterdata.dto.LookupDto
 import sirobilt.meghasanjivini.masterdata.model.*
 import java.util.UUID
 
 @ApplicationScoped
-class LookupRepository: PanacheRepository<LookupValue> {
-    fun findByCategory(cat: String) =
+class LookupValueRepository : PanacheRepositoryBase<LookupValue, UUID>{
+    fun findByCategory(cat: String) : List<LookupValue> =
         list("category = ?1 AND active = true ORDER BY sortOrder", cat)
+
+    fun findActiveByCategoryAndValue(cat: String, value: String): LookupValue? =
+        find(
+            "category = ?1 AND value = ?2 AND active = true",
+            cat, value
+        ).firstResult()
 }
 
 @ApplicationScoped

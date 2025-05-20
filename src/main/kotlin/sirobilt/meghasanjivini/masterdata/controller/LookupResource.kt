@@ -2,19 +2,49 @@ package sirobilt.meghasanjivini.masterdata.controller
 
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import sirobilt.meghasanjivini.masterdata.dto.*
+import sirobilt.meghasanjivini.masterdata.model.LookupValue
 import sirobilt.meghasanjivini.masterdata.service.*
 import java.util.UUID
 
-@Path("/api/lookups")
+@Path("/lookup-values")
 @Produces(MediaType.APPLICATION_JSON)
-class LookupResource(private val service: LookupService) {
+@Consumes(MediaType.APPLICATION_JSON)
+class LookupValueController(
+    private val service: LookupService
+) {
+
     @GET
     @Path("/{category}")
-    fun list(@PathParam("category") category: String): List<LookupDto> =
-        service.get(category)
-}
+    fun getByCategory(@PathParam("category") category: String): List<LookupDto> {
+        return service.getByCategory(category)
+    }
 
+    @GET
+    fun getAll(): List<LookupValue> = service.getAll()
+
+    @POST
+    fun create(dto: LookupValueCreateDTO): Response {
+        val entity = service.create(dto)
+        return Response.status(Response.Status.CREATED).entity(entity).build()
+    }
+
+    @PUT
+    @Path("/{id}")
+    fun update(@PathParam("id") id: UUID, dto: LookupValueUpdateDTO): LookupValue {
+        return service.update(id, dto)
+    }
+
+    @DELETE
+    @Path("/{category}/{value}")
+    fun deactivate(
+        @PathParam("category") category: String,
+        @PathParam("value") value: String
+    ): LookupValue {
+        return service.deactivate(category, value)
+    }
+}
 @Path("/api/geo")
 @Produces(MediaType.APPLICATION_JSON)
 class GeographyResource(

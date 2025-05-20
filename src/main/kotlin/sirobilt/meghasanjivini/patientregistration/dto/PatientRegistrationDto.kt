@@ -5,8 +5,6 @@ import sirobilt.meghasanjivini.patientregistration.model.Patient
 import sirobilt.meghasanjivini.patientregistration.model.PatientAddress
 import sirobilt.meghasanjivini.patientregistration.model.PatientContact
 import sirobilt.meghasanjivini.patientregistration.model.PatientInsurance
-import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.full.memberProperties
 
 /* PatientRegistrationDto.kt */
 fun PatientRegistrationDto.toEntity(): Patient {

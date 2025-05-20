@@ -124,6 +124,17 @@
         <artifactId>quarkus-flyway</artifactId>
     </dependency>
 
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>1.9.0</version>
+    </dependency>
+
+
+    <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-liquibase</artifactId>
+    </dependency>
 
 
     <dependency>

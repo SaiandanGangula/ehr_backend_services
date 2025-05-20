@@ -201,11 +201,11 @@ data class InformationSharingDto(
 )
 
 data class PatientInsuranceDto(
-    val insuranceProvider: String,
-    val policyNumber: String,
-    val policyStartDate: LocalDate,
-    val policyEndDate: LocalDate,
-    val coverageAmount: BigDecimal
+    val insuranceProvider: String? = null,
+    val policyNumber: String? = null,
+    val policyStartDate: LocalDate? = null,
+    val policyEndDate: LocalDate? = null,
+    val coverageAmount: BigDecimal? = null
 )
 
 data class ReferralDto(
