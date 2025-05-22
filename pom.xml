@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>${quarkus.platform.group-id}</groupId>
-            <artifactId>${quarkus.platform.artifact-id}</artifactId>
+            <artifactId>quarkus-bom</artifactId>
             <version>${quarkus.platform.version}</version>
             <type>pom</type>
             <scope>import</scope>
@@ -91,6 +91,9 @@
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-hibernate-orm-panache-kotlin</artifactId>
     </dependency>
+
+
+
     <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
