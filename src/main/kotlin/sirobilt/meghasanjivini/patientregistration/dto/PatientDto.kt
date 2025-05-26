@@ -229,3 +229,7 @@ data class TokenDto(
     val allocatedTo: String
 )
 
+data class PatientListResponseDto(
+    val patients: List<PatientResponseDto>,
+    val totalCount: Long
+)

@@ -321,6 +321,25 @@ class PatientService @Inject constructor(
     fun listAll(): List<PatientResponseDto> =
         patientRepo.findAll().list().map { it.toDto() }
 
+    fun searchByQuery(query: String, page: Int, size: Int): List<Patient> {
+        return patientRepo.searchByQuery(query, page, size)
+    }
+
+    fun countByQuery(query: String): Long {
+        return patientRepo.countByQuery(query)
+    }
+
+    fun listAllWithCount(page: Int, size: Int): PatientListResponseDto {
+        val pageResult = patientRepo.findAll().page(page, size)
+        val totalCount = patientRepo.count()
+        val patients = pageResult.list().map { it.toDto() }
+        return PatientListResponseDto(
+            patients = patients,
+            totalCount = totalCount
+        )
+    }
+
+
     @Transactional
     fun delete(id: UUID) {
         if (!patientRepo.deleteById(id)) throw NotFoundException()

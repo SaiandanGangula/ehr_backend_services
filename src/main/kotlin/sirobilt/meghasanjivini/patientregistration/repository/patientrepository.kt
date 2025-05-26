@@ -2,6 +2,7 @@ package sirobilt.meghasanjivini.patientregistration.repository
 
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
+import io.quarkus.panache.common.Page
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
 import sirobilt.meghasanjivini.patientregistration.model.*
@@ -35,6 +36,47 @@ import java.time.LocalDate
             "to"   to to
         )
     ).list()
+
+    fun searchByQuery(query: String, page: Int, size: Int): List<Patient> {
+        val search = "%${query.lowercase()}%"
+        return find(
+            """
+        SELECT DISTINCT p
+          FROM Patient p
+          LEFT JOIN PatientContact c ON c.patient = p
+          LEFT JOIN PatientAddress a ON a.patient = p
+         WHERE LOWER(p.firstName) LIKE :search
+            OR LOWER(p.middleName) LIKE :search
+            OR LOWER(p.lastName)  LIKE :search
+            OR LOWER(a.cityOrVillage) LIKE :search
+            OR LOWER(c.email)     LIKE :search
+            OR LOWER(c.phoneNumber) LIKE :search
+        """.trimIndent(),
+            mapOf("search" to search)
+        )
+            .page(Page.of(page, size))
+            .list()
+    }
+
+
+    fun countByQuery(query: String): Long {
+        val search = "%${query.lowercase()}%"
+        return find(
+            """
+        SELECT COUNT(DISTINCT p)
+          FROM Patient p
+          LEFT JOIN PatientContact c ON c.patient = p
+          LEFT JOIN PatientAddress a ON a.patient = p
+         WHERE LOWER(p.firstName) LIKE :search
+            OR LOWER(p.middleName) LIKE :search
+            OR LOWER(p.lastName)  LIKE :search
+            OR LOWER(a.cityOrVillage) LIKE :search
+            OR LOWER(c.email)     LIKE :search
+            OR LOWER(c.phoneNumber) LIKE :search
+        """.trimIndent(),
+            mapOf("search" to search)
+        ).firstResult() as Long
+    }
 
 
     fun searchByCityOrName(city: String?, name: String?) = find(
