@@ -3,11 +3,17 @@ package sirobilt.meghasanjivini.patientregistration.repository
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.NoResultException
 import java.util.*
 import sirobilt.meghasanjivini.patientregistration.model.*
 import java.time.LocalDate
 
 @ApplicationScoped class PatientRepository            : PanacheRepositoryBase<Patient, UUID>{
+
+    @Inject
+    lateinit var em: EntityManager
     fun search(
         id: UUID?, fn: String?, ln: String?,
         mobile: String?, mail: String?,
@@ -69,6 +75,26 @@ import java.time.LocalDate
             "abha" to abhaNumber,
             "mail" to email)
     ).firstResult()
+
+    fun findByNameAndDob(firstName: String?, lastName: String?, dob: LocalDate?): Patient? {
+        val sql = """
+      SELECT *
+      FROM patient
+      WHERE first_name     = :fn
+        AND last_name      = :ln
+        AND date_of_birth  = :dob
+      """
+        val query = em.createNativeQuery(sql, Patient::class.java)
+            .setParameter("fn", firstName)
+            .setParameter("ln", lastName)
+            .setParameter("dob", dob)
+
+        return try {
+            query.singleResult as Patient
+        } catch (e: NoResultException) {
+            null
+        }
+    }
 
 
 }

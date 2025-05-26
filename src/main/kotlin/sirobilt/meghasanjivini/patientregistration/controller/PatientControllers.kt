@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.jboss.logging.Logger
 import sirobilt.meghasanjivini.patientregistration.dto.*
+import sirobilt.meghasanjivini.patientregistration.repository.PatientRepository
 import sirobilt.meghasanjivini.patientregistration.service.PatientService
 import java.net.URI
 import java.time.LocalDate
@@ -22,7 +23,8 @@ import java.util.*
 @Consumes(MediaType.APPLICATION_JSON)
 class PatientController @Inject constructor(
 
-    private val patientSvc: PatientService
+    private val patientSvc: PatientService,
+    private val patientRepository: PatientRepository
 ) {
 
 
@@ -33,6 +35,18 @@ class PatientController @Inject constructor(
     fun register(@RequestBody @Valid  dto: PatientRegistrationDto): Response {
         try {
             logger.info("Incoming Register Patient Request: $dto")
+
+            val existing = patientRepository.findByNameAndDob(
+                dto.firstName?.trim()  ,
+                dto.lastName?.trim() ,
+                dto.dateOfBirth
+            )
+            if (existing != null) {
+                logger.warn("Duplicate patient registration attempt: name=${dto.firstName} ${dto.lastName}, dob=${dto.dateOfBirth}")
+                return Response.status(Response.Status.CONFLICT)
+                    .entity(mapOf("error" to "Patient ${dto.firstName} ${dto.lastName} born on ${dto.dateOfBirth} already exists"))
+                    .build()
+            }
 
             val response = patientSvc.register(dto)
 
