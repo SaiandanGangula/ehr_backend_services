@@ -13,6 +13,7 @@ import org.jboss.logging.Logger
 import sirobilt.meghasanjivini.patientregistration.dto.*
 import sirobilt.meghasanjivini.patientregistration.repository.PatientRepository
 import sirobilt.meghasanjivini.patientregistration.service.PatientService
+import sirobilt.meghasanjivini.patientregistration.service.toDto
 import java.net.URI
 import java.time.LocalDate
 import java.util.*
@@ -93,6 +94,37 @@ class PatientController @Inject constructor(
             else -> patientSvc.listAll()
         }
 
+    @GET
+    @Path("/query")
+    @Operation(summary = "Unified search for patients by any field with pagination")
+    fun searchByQuery(
+        @QueryParam("query") query: String?,
+        @QueryParam("page") @DefaultValue("0") pageNumber: Int,
+        @QueryParam("size") @DefaultValue("10") pageSize: Int
+    ): Response {
+        return try {
+            val (patients, totalCount) = if (query.isNullOrBlank()) {
+                val result = patientSvc.listAllWithCount(pageNumber, pageSize)
+                Pair(result.patients, result.totalCount)
+            } else {
+                val patients = patientSvc.searchByQuery(query, pageNumber, pageSize)
+                val totalCount = patientSvc.countByQuery(query)
+                Pair(patients.map { it.toDto() }, totalCount)
+            }
+
+            Response.ok(
+                mapOf(
+                    "patients" to patients,
+                    "totalCount" to totalCount
+                )
+            ).build()
+        } catch (ex: Exception) {
+            logger.error("Error during patient search (query='$query')", ex)
+            Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(mapOf("error" to "Internal server error"))
+                .build()
+        }
+    }
 
     @DELETE
     @Path("/{id}")
